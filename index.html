@@ -3,20 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Subscription Calendar</title>
+  <title>Text to Markdown Editor - แบบ Notion</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-primary: #0d0d0d;
-      --bg-cell: #1a1a1a;
-      --bg-cell-hover: #252525;
-      --text-primary: #e8e8e8;
-      --text-muted: #9ca3af;
-      --border-radius: 12px;
-      --dot-size: 6px;
-      --calendar-gap: 0.5rem;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f7f7f5;
+      --bg-hover: #f1f1ef;
+      --text-primary: #37352f;
+      --text-secondary: #787774;
+      --text-muted: #9b9a97;
+      --border-color: #e9e9e7;
+      --accent: #2383e2;
+      --accent-hover: #1a73d1;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     * {
@@ -26,296 +29,286 @@
     }
 
     body {
-      font-family: 'IBM Plex Mono', 'DM Sans', monospace, sans-serif;
-      background: var(--bg-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-secondary);
       color: var(--text-primary);
       min-height: 100vh;
       padding: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      line-height: 1.6;
     }
 
     .container {
-      max-width: 900px;
-      min-width: 0;
-      width: 100%;
-      overflow: hidden;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .header {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 2rem;
+      align-items: center;
     }
 
     .title {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-
-    .title-year {
-      font-weight: 600;
-      color: var(--text-muted);
-      opacity: 0.85;
-    }
-
-    .monthly-spend {
-      text-align: right;
-    }
-
-    .monthly-spend-label {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      margin-bottom: 0.25rem;
-    }
-
-    .monthly-spend-value {
       font-size: 1.5rem;
       font-weight: 700;
+      color: var(--text-primary);
     }
 
-    .snackbar {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%) translateY(120%);
-      background: #1f1f1f;
-      color: #fef2f2;
-      padding: 0.75rem 1.25rem;
-      border-radius: 10px;
-      font-size: 0.875rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-      border: 1px solid #ef4444;
-      max-width: 90vw;
-      z-index: 9999;
-      transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s;
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .snackbar.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
-    }
-
-    .calendar-wrapper {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: var(--calendar-gap);
-      min-width: 0;
-      width: 100%;
-    }
-
-    .weekday {
+    .toolbar {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.75rem;
-      background: var(--bg-cell);
-      border-radius: var(--border-radius);
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-align: center;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      min-width: 0;
+      gap: 0.5rem;
     }
 
-    .day-cell {
-      min-width: 0;
-      position: relative;
-      aspect-ratio: 1;
-      overflow: hidden;
-      background: var(--bg-cell);
-      border-radius: var(--border-radius);
-      padding: 0.75rem;
+    .btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--text-muted);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      height: calc(100vh - 200px);
+    }
+
+    .panel {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      transition: background 0.2s;
-      cursor: default;
-    }
-
-    .day-cell:hover {
-      background: var(--bg-cell-hover);
-    }
-
-    .day-subscriptions {
-      position: absolute;
-      top: 38%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      flex-wrap: wrap;
-      flex-direction: row;
-      gap: 0.35rem;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-
-    .day-subscription-item {
-      position: relative;
-      width: 54px;
-      height: 54px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .day-subscription-item--text {
-      width: auto;
-      min-width: 36px;
-      height: auto;
-      min-height: 28px;
-      padding: 0.2rem 0.4rem;
-    }
-
-    .day-subscription-item .day-subscription-icon {
-      width: 33px;
-      height: 33px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: inherit;
-    }
-
-    .day-subscription-item .day-subscription-icon svg {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .day-subscription-item .day-subscription-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .day-subscription-name {
-      font-size: 0.65rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      background: rgba(0,0,0,0.3);
-      padding: 0.15rem 0.35rem;
-      border-radius: 4px;
-      max-width: 100%;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
-    .day-cell.empty {
-      opacity: 0.4;
-      cursor: default;
-    }
-
-    .day-number {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .panel-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
       font-size: 0.875rem;
-      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .editor-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .editor {
+      flex: 1;
+      padding: 1.5rem;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--text-primary);
+      background: transparent;
+      overflow-y: auto;
+    }
+
+    .editor::placeholder {
       color: var(--text-muted);
     }
 
-    .day-number.today {
-      border-radius: 50%;
-      background: #ff6b6b;
-      color: #000;
-      font-weight: 500;
-      font-size: 0.875rem;
+    .preview-container {
+      flex: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
     }
 
-    .app-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
+    .preview {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--text-primary);
+    }
+
+    .preview h1 {
+      font-size: 2rem;
       font-weight: 700;
-      flex-shrink: 0;
+      margin: 1.5rem 0 1rem;
+      color: var(--text-primary);
     }
 
-    .app-dot {
-      width: var(--dot-size);
-      height: var(--dot-size);
-      border-radius: 50%;
-      flex-shrink: 0;
+    .preview h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 1.25rem 0 0.75rem;
+      color: var(--text-primary);
     }
 
-    /* Subscription colors */
-    .icon-netflix { background: #e50914; color: white; }
-    .icon-spotify { background: #1db954; color: white; }
-    .icon-amazon { background: #ff9900; color: white; }
-    .icon-linkedin { background: #0a66c2; color: white; }
-    .icon-cloud { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
-    .icon-energy { background: #22c55e; color: white; }
-    .icon-dev { background: #64748b; color: white; }
-    .icon-creative { background: #a855f7; color: white; }
+    .preview h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 1rem 0 0.5rem;
+      color: var(--text-primary);
+    }
 
-    .dot-red { background: #e50914; }
-    .dot-green { background: #1db954; }
-    .dot-orange { background: #ff9900; }
-    .dot-blue { background: #0a66c2; }
-    .dot-purple { background: #8b5cf6; }
-    .dot-lightgreen { background: #22c55e; }
-    .dot-gray { background: #94a3b8; }
-    .dot-violet { background: #a855f7; }
+    .preview h1:first-child,
+    .preview h2:first-child,
+    .preview h3:first-child {
+      margin-top: 0;
+    }
 
-    @media (max-width: 640px) {
-      :root {
-        --calendar-gap: 0.25rem;
+    .preview p {
+      margin: 0.75rem 0;
+    }
+
+    .preview strong {
+      font-weight: 600;
+    }
+
+    .preview em {
+      font-style: italic;
+    }
+
+    .preview ul,
+    .preview ol {
+      margin: 0.75rem 0;
+      padding-left: 2rem;
+    }
+
+    .preview li {
+      margin: 0.5rem 0;
+    }
+
+    .preview code {
+      background: var(--bg-secondary);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #e83e8c;
+    }
+
+    .preview pre {
+      background: var(--bg-secondary);
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    .preview pre code {
+      background: transparent;
+      padding: 0;
+      color: var(--text-primary);
+    }
+
+    .preview blockquote {
+      border-left: 3px solid var(--border-color);
+      padding-left: 1rem;
+      margin: 1rem 0;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    .preview hr {
+      border: none;
+      border-top: 1px solid var(--border-color);
+      margin: 1.5rem 0;
+    }
+
+    .preview a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .preview a:hover {
+      text-decoration: underline;
+    }
+
+    .markdown-output {
+      background: var(--bg-secondary);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .markdown-output-header {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .markdown-code {
+      background: var(--bg-primary);
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+    }
+
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    @media (max-width: 968px) {
+      .main-content {
+        grid-template-columns: 1fr;
+        height: auto;
       }
-      body {
-        padding: 1rem;
+
+      .panel {
+        min-height: 400px;
       }
-      .calendar-wrapper {
-        gap: var(--calendar-gap);
+
+      .header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
       }
-      .weekday {
-        padding: 0.5rem 0.25rem;
-        font-size: 0.65rem;
-      }
-      .day-cell {
-        padding: 0.5rem;
-        min-height: 0;
-      }
-      .day-subscriptions {
-        top: 32%;
-        gap: 0.2rem;
-      }
-      .day-subscription-item {
-        width: 36px;
-        height: 36px;
-        border-radius: 6px;
-      }
-      .day-subscription-item .day-subscription-icon {
-        width: 20px;
-        height: 20px;
-      }
-      .day-number {
-        width: 28px;
-        height: 28px;
-        font-size: 0.75rem;
-      }
-      .day-number.today {
-        font-size: 0.75rem;
+
+      .toolbar {
+        width: 100%;
+        flex-wrap: wrap;
       }
     }
   </style>
@@ -323,348 +316,320 @@
 <body>
   <div class="container">
     <header class="header">
-      <h1 class="title" id="headerTitle"><span id="headerMonth"></span><span class="title-year" id="headerYear"></span></h1>
-      <div class="monthly-spend">
-        <div class="monthly-spend-label">Monthly spend</div>
-        <div class="monthly-spend-value" id="monthlySpend">฿ 0</div>
+      <h1 class="title">📝 Text to Markdown Editor</h1>
+      <div class="toolbar">
+        <button class="btn" onclick="clearEditor()">ล้าง</button>
+        <button class="btn" onclick="copyMarkdown()">คัดลอก Markdown</button>
+        <button class="btn btn-primary" onclick="downloadMarkdown()">ดาวน์โหลด</button>
       </div>
     </header>
 
-    <div class="calendar-wrapper" id="calendarWrapper"></div>
+    <div class="main-content">
+      <div class="panel">
+        <div class="panel-header">✏️ แก้ไขข้อความ</div>
+        <div class="editor-container">
+          <textarea 
+            id="editor" 
+            class="editor" 
+            placeholder="พิมพ์ข้อความของคุณที่นี่...&#10;&#10;ลองใช้:&#10;# หัวข้อใหญ่&#10;## หัวข้อย่อย&#10;**ข้อความหนา** หรือ *ข้อความเอียง*&#10;- รายการ&#10;1. รายการแบบเลข&#10;&gt; คำพูด&#10;`โค้ด`"
+            autofocus
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">👁️ ตัวอย่าง</div>
+        <div class="preview-container">
+          <div id="preview" class="preview empty-state">พิมพ์ข้อความเพื่อดูตัวอย่าง...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="markdown-output">
+      <div class="markdown-output-header">📄 Markdown Output</div>
+      <pre id="markdownOutput" class="markdown-code empty-state">Markdown จะแสดงที่นี่...</pre>
+    </div>
   </div>
 
-  <div id="snackbar" class="snackbar" role="alert" aria-live="polite"></div>
-
   <script>
-    const WEBHOOK_URL = 'https://n8n.willy.moda/webhook/my-subscription';
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const markdownOutput = document.getElementById('markdownOutput');
 
-    function showSnackbar(message) {
-      const el = document.getElementById('snackbar');
-      if (!el) return;
-      el.textContent = message;
-      el.classList.add('show');
-      clearTimeout(el._snackbarTimer);
-      el._snackbarTimer = setTimeout(() => {
-        el.classList.remove('show');
-      }, 6000);
-    }
+    // Enhanced markdown parser
+    function parseMarkdown(text) {
+      if (!text.trim()) return '';
 
-    // ดึง array จาก response หลายรูปแบบ (ต้องได้ครบทุกรายการ ไม่ใช่แค่ First Entry)
-    function extractList(raw) {
-      if (!raw || typeof raw !== 'object') return [];
-      if (Array.isArray(raw)) return raw;
-      if (raw?.data && Array.isArray(raw.data)) return raw.data;
-      if (raw?.body && Array.isArray(raw.body)) return raw.body;
-      if (raw?.body?.data && Array.isArray(raw.body.data)) return raw.body.data;
-      if (raw?.subscriptions && Array.isArray(raw.subscriptions)) return raw.subscriptions;
-      if (raw?.items && Array.isArray(raw.items)) return raw.items.map(i => i.json || i);
-      if (raw?.result && Array.isArray(raw.result)) return raw.result;
-      if (raw?.output && Array.isArray(raw.output)) return raw.output;
-      // หา array ตัวแรกที่ซ่อนอยู่ใน object (กรณี n8n ห่อมาแบบอื่น)
-      const vals = Object.values(raw);
-      for (const v of vals) {
-        if (Array.isArray(v) && v.length > 0) return v;
-      }
-      // n8n ส่ง object เดียว (First Entry) = ได้แค่ 1 รายการ ต้องไปตั้ง Respond ให้ส่งทั้ง array ใน n8n
-      if (raw?.json) return [raw.json];
-      if (!Array.isArray(raw) && typeof raw === 'object' && (raw.name || raw.title || raw.subscriptionName)) return [raw];
-      return [];
-    }
+      let html = text;
+      const lines = text.split('\n');
+      const result = [];
+      let inCodeBlock = false;
+      let codeBlockContent = [];
+      let inList = false;
+      let listType = null;
+      let listItems = [];
 
-    function getDayFromRow(row, year, month) {
-      const d = row.day ?? row.payment_day ?? row.day_of_month ?? row.date_day;
-      if (d != null && d !== '') {
-        const n = Number(d);
-        if (n >= 1 && n <= 31) return n;
-      }
-      const dateKeys = ['paymentDate', 'payment_date', 'date', 'dueDate', 'due_date', 'next_payment', 'nextPayment'];
-      for (const key of dateKeys) {
-        const v = row[key];
-        if (!v) continue;
-        const parsed = new Date(v);
-        if (isNaN(parsed.getTime())) continue;
-        if (parsed.getFullYear() === year && parsed.getMonth() === month) return parsed.getDate();
-      }
-      return null;
-    }
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
 
-    function getNameFromRow(row) {
-      const name = row.name ?? row.subscriptionName ?? row.subscription_name ?? row.title ?? row.service ?? row.product ?? '';
-      return String(name).trim();
-    }
-
-    function getIconFromRow(row) {
-      const keys = ['icon', 'iconSvg', 'icon_svg', 'svgIcon', 'svg_icon', 'Icon', 'IconSvg', 'svg', 'image', 'imageUrl', 'image_url'];
-      for (const k of keys) {
-        const v = row[k];
-        if (v && typeof v === 'string' && v.trim()) return v.trim();
-      }
-      return '';
-    }
-
-    // ไอคอนเริ่มต้นตามชื่อ (ถ้า Table ยังไม่มีคอลัมน์ Icon)
-    const DEFAULT_ICONS = {
-      github: { svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>', color: '#24292f' },
-      netflix: { svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5.398 0v24h6.222V0H5.398zM18.602 0v24h6.222V0h-6.222zM12 5.55V24h6.222V5.55H12zM0 5.55V24h6.222V5.55H0z"/></svg>', color: '#e50914' },
-      spotify: { svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.239 12.42c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.18-1.2-.18-1.38-.72-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>', color: '#1db954' },
-      amazon: { svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15.23 17.22c.98.59 1.85.99 2.71.99 1.32 0 2.01-.66 2.61-1.95.2-.44.35-.82.45-1.15.1-.33.15-.6.15-.81 0-.24-.08-.45-.24-.63-.16-.18-.42-.27-.78-.27-.24 0-.48.05-.72.15-.24.1-.45.2-.63.32-.27-.84-.54-1.63-.81-2.38-.27-.75-.53-1.41-.78-1.98-.25-.57-.48-1.02-.69-1.36-.21-.34-.39-.55-.54-.64-.15-.09-.33-.14-.54-.14-.2 0-.41.03-.63.08-.22.05-.43.12-.63.21-.51-1.5-.77-2.97-.77-4.41 0-1.26.22-2.46.66-3.59.44-1.13 1.04-2.11 1.8-2.93.76-.82 1.66-1.45 2.7-1.89 1.04-.44 2.16-.66 3.36-.66 1.21 0 2.27.22 3.09.66.82.44 1.42 1.04 1.78 1.8.36.76.54 1.61.54 2.55 0 .69-.07 1.41-.21 2.16-.14.75-.3 1.5-.48 2.25-.18.75-.36 1.47-.54 2.16-.18.69-.33 1.32-.45 1.89-.12.57-.18 1.05-.18 1.44 0 .45.12.81.36 1.08.24.27.66.41 1.26.41.48 0 .99-.12 1.53-.36.54-.24 1.08-.54 1.62-.9.06.27.12.54.18.81.06.27.09.51.09.72 0 .48-.21.9-.63 1.26-.42.36-1.02.54-1.8.54-.33 0-.69-.06-1.08-.18-.39-.12-.78-.3-1.17-.54-.39-.24-.75-.54-1.08-.9-.33-.36-.6-.75-.81-1.17-.21-.42-.33-.84-.33-1.26 0-.45.09-.9.27-1.35.18-.45.45-.87.81-1.26.36-.39.81-.72 1.35-.99.54-.27 1.17-.48 1.89-.63.72-.15 1.5-.21 2.34-.21.84 0 1.65.09 2.43.27.78.18 1.47.45 2.07.81.6.36 1.08.81 1.44 1.35.36.54.54 1.2.54 1.98 0 .39-.06.78-.18 1.17-.12.39-.27.78-.45 1.17-.18.39-.39.78-.63 1.17-.24.39-.51.78-.81 1.17-.3.39-.63.75-.99 1.08-.36.33-.75.63-1.17.9-.42.27-.87.48-1.35.63-.48.15-.99.21-1.53.21-.54 0-1.02-.09-1.44-.27-.42-.18-.75-.45-.99-.81-.24-.36-.36-.81-.36-1.35 0-.33.06-.66.18-.99.12-.33.27-.66.45-.99.18-.33.39-.63.63-.9.24-.27.51-.48.81-.63.3-.15.63-.21.99-.21.33 0 .63.06.9.18.27.12.51.3.72.54.21.24.33.54.33.9 0 .24-.06.48-.18.72-.12.24-.3.45-.54.63-.24.18-.54.27-.9.27-.18 0-.36-.03-.54-.09-.18-.06-.33-.15-.45-.27-.12-.12-.18-.27-.18-.45 0-.18.09-.33.27-.45.18-.12.42-.18.72-.18.24 0 .45.06.63.18.18.12.33.27.45.45.12.18.18.39.18.63 0 .36-.15.69-.45.99-.3.3-.69.45-1.17.45z"/></svg>', color: '#ff9900' },
-      linkedin: { svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>', color: '#0a66c2' },
-      default: { svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><circle cx="12" cy="12" r="3"/></svg>', color: '#94a3b8' }
-    };
-
-    function getDefaultIcon(name) {
-      if (!name) return DEFAULT_ICONS.default;
-      const key = name.toLowerCase().replace(/\s+/g, '');
-      return DEFAULT_ICONS[key] ?? DEFAULT_ICONS.default;
-    }
-
-    const ICON_BG = '#2c2c2c';
-    const WCAG_MIN_RATIO = 3;
-
-    function toHex(colorStr) {
-      if (!colorStr || typeof colorStr !== 'string') return null;
-      const s = colorStr.trim();
-      const parsed = parseHex(s);
-      if (parsed) return parsed.toLowerCase();
-      if (/^[0-9a-fA-F]{3,6}$/.test(s)) return ('#' + s).toLowerCase();
-      return null;
-    }
-
-    function hexToRgb(hex) {
-      const m = hex.replace(/^#/, '').match(/.{2}/g);
-      if (!m) return null;
-      return m.map(x => parseInt(x, 16));
-    }
-
-    function relativeLuminance(hex) {
-      const rgb = hexToRgb(hex);
-      if (!rgb) return 0;
-      const [r, g, b] = rgb.map(c => {
-        const v = c / 255;
-        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-      });
-      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    }
-
-    function contrastRatio(lum1, lum2) {
-      const L1 = Math.max(lum1, lum2);
-      const L2 = Math.min(lum1, lum2);
-      return (L1 + 0.05) / (L2 + 0.05);
-    }
-
-    function parseHex(str) {
-      if (!str || typeof str !== 'string') return null;
-      str = str.trim();
-      if (/^#[0-9a-fA-F]{3}$/.test(str)) return '#' + str.slice(1).split('').map(c => c + c).join('');
-      if (/^#[0-9a-fA-F]{6}$/.test(str)) return str;
-      if (/^#[0-9a-fA-F]{8}$/.test(str)) return str.slice(0, 7);
-      if (/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/.test(str)) {
-        const [, r, g, b] = str.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/);
-        return '#' + [r, g, b].map(x => ('0' + parseInt(x, 10).toString(16)).slice(-2)).join('');
-      }
-      const rgba = str.match(/^rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*[\d.]+\s*\)$/);
-      if (rgba) return '#' + [rgba[1], rgba[2], rgba[3]].map(x => ('0' + parseInt(x, 10).toString(16)).slice(-2)).join('');
-      return null;
-    }
-
-    function ensureWcagContrast(iconColorHex, bgHex) {
-      const bg = bgHex || ICON_BG;
-      const fgHex = toHex(iconColorHex);
-      if (!fgHex || !hexToRgb(fgHex)) return '#ffffff';
-      const lumFg = relativeLuminance(fgHex);
-      const lumBg = relativeLuminance(bg);
-      const ratio = contrastRatio(lumFg, lumBg);
-      if (ratio >= WCAG_MIN_RATIO) return fgHex;
-      return '#ffffff';
-    }
-
-    function getSvgFillColor(svgEl) {
-      if (!svgEl) return null;
-      let fill = svgEl.getAttribute('fill');
-      if (fill && fill.trim() !== '' && fill.trim() !== 'currentColor') return fill.trim();
-      const first = svgEl.querySelector('[fill]');
-      if (first) {
-        const f = first.getAttribute('fill');
-        if (f && f.trim() !== '' && f.trim() !== 'currentColor') return f.trim();
-      }
-      return null;
-    }
-
-    function getIconColorFromRow(row) {
-      const c = row.iconColor ?? row.icon_color ?? row.color ?? row.dotColor ?? row.dot_color ?? '';
-      return typeof c === 'string' ? c.trim() : '#22c55e';
-    }
-
-    function normalizeSubscriptions(raw) {
-      const list = extractList(raw);
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth();
-
-      return list.map(item => {
-        const row = item?.json ? { ...item.json, ...item } : (item && typeof item === 'object' ? item : {});
-        const day = getDayFromRow(row, year, month);
-        const name = getNameFromRow(row);
-        const price = row.price != null && row.price !== '' ? Number(row.price) : (row.amount != null ? Number(row.amount) : null);
-        const icon = getIconFromRow(row);
-        const iconColor = getIconColorFromRow(row);
-        return { day, name, price, icon, iconColor };
-      }).filter(s => s.day != null && s.day >= 1 && s.day <= 31 && s.name);
-    }
-
-    function getSubscriptionsForDay(subscriptions, day) {
-      return subscriptions.filter(s => s.day === day);
-    }
-
-    function getTotalMonthlySpend(subscriptions) {
-      return subscriptions.reduce((sum, s) => (sum + (s.price ?? 0)), 0);
-    }
-
-    function renderCalendar(subscriptions = []) {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth();
-
-      document.getElementById('headerMonth').textContent = now.toLocaleString('en-US', { month: 'short' }) + ' ';
-      document.getElementById('headerYear').textContent = year;
-
-      const total = getTotalMonthlySpend(subscriptions);
-      document.getElementById('monthlySpend').textContent = total > 0 ? `฿ ${total.toFixed(2)}` : '—';
-
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-      const daysInMonth = lastDay.getDate();
-      const startWeekday = firstDay.getDay();
-
-      const wrapper = document.getElementById('calendarWrapper');
-      wrapper.innerHTML = '';
-
-      ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(label => {
-        const w = document.createElement('div');
-        w.className = 'weekday';
-        w.textContent = label;
-        wrapper.appendChild(w);
-      });
-
-      for (let i = 0; i < startWeekday; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'day-cell empty';
-        wrapper.appendChild(cell);
-      }
-
-      const today = now.getDate();
-      const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const cell = document.createElement('div');
-        cell.className = 'day-cell';
-
-        const subs = getSubscriptionsForDay(subscriptions, day);
-        let cellTooltip = '';
-        if (subs.length > 0) {
-          const tooltipLines = subs.map(s => s.price != null ? `${s.name} – ฿ ${s.price.toFixed(2)}` : s.name);
-          cellTooltip = 'ต้องจ่าย: ' + tooltipLines.join(', ');
-          cell.title = cellTooltip;
-          const subEl = document.createElement('div');
-          subEl.className = 'day-subscriptions';
-          subs.forEach(s => {
-            const item = document.createElement('div');
-            item.className = 'day-subscription-item';
-            item.title = s.price != null ? `${s.name} – ฿ ${s.price.toFixed(2)}` : s.name;
-            const iconSource = s.icon || getDefaultIcon(s.name).svg;
-            const fallbackColor = s.icon ? (s.iconColor || '#94a3b8') : getDefaultIcon(s.name).color;
-            const iconWrap = document.createElement('div');
-            iconWrap.className = 'day-subscription-icon';
-            let resolvedColor = fallbackColor;
-            if (/^\s*<svg/i.test(iconSource)) {
-              const sanitized = iconSource.replace(/\\"/g, '"').trim();
-              iconWrap.innerHTML = sanitized;
-              const svg = iconWrap.querySelector('svg');
-              if (svg) {
-                const svgFill = getSvgFillColor(svg);
-                if (svgFill) resolvedColor = svgFill;
-                svg.setAttribute('width', '100%');
-                svg.setAttribute('height', '100%');
-                if (!svg.getAttribute('viewBox') && svg.getAttribute('width') && svg.getAttribute('height')) {
-                  const w = svg.getAttribute('width').replace(/\D/g, '') || '24';
-                  const h = svg.getAttribute('height').replace(/\D/g, '') || '24';
-                  svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-                }
-                svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-                if (!svgFill) svg.setAttribute('fill', 'currentColor');
-              }
-            } else if (/^https?:\/\//i.test(iconSource) || iconSource.startsWith('data:')) {
-              const img = document.createElement('img');
-              img.src = iconSource;
-              img.alt = s.name;
-              iconWrap.appendChild(img);
-            } else {
-              iconWrap.innerHTML = iconSource;
-            }
-            item.appendChild(iconWrap);
-            const col = toHex(resolvedColor) || (resolvedColor && typeof resolvedColor === 'string' ? toHex(resolvedColor.trim()) : null);
-            if (!col) {
-              item.style.color = '';
-            } else {
-              const wcagColor = ensureWcagContrast(col, ICON_BG);
-              const contrastPassed = (wcagColor !== '#ffffff');
-              if (contrastPassed) {
-                item.style.color = wcagColor;
-              } else {
-                item.style.color = '#ffffff';
-                const svg = iconWrap.querySelector('svg');
-                if (svg) {
-                  svg.setAttribute('fill', 'currentColor');
-                  svg.querySelectorAll('[fill]').forEach(el => el.setAttribute('fill', 'currentColor'));
-                }
-              }
-            }
-            subEl.appendChild(item);
-          });
-          cell.appendChild(subEl);
+        // Code blocks
+        if (trimmed.startsWith('```')) {
+          if (inCodeBlock) {
+            result.push('<pre><code>' + codeBlockContent.join('\n') + '</code></pre>');
+            codeBlockContent = [];
+            inCodeBlock = false;
+          } else {
+            inCodeBlock = true;
+          }
+          continue;
         }
 
-        const dayNum = document.createElement('div');
-        dayNum.className = 'day-number';
-        if (isCurrentMonth && day === today) dayNum.classList.add('today');
-        dayNum.textContent = day.toString().padStart(2, '0');
-        if (cellTooltip) dayNum.title = cellTooltip;
-        cell.appendChild(dayNum);
-
-        wrapper.appendChild(cell);
-      }
-    }
-
-    async function loadAndRender() {
-      renderCalendar([]);
-
-      let data = {};
-      try {
-        const res = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({})
-        });
-        const text = await res.text();
-        try { data = JSON.parse(text); } catch (_) { data = {}; }
-
-        console.log('n8n response:', data);
-        const list = normalizeSubscriptions(data);
-        console.log('parsed subscriptions:', list);
-        renderCalendar(list);
-      } catch (err) {
-        console.error('Failed to load subscriptions:', err);
-        const isCorsOrNetwork = !err.message || /failed|load|cors|network/i.test(err.message);
-        if (isCorsOrNetwork) {
-          showSnackbar('โหลดไม่สำเร็จ: เปิดหน้าจาก local server (npx serve) และเช็ค CORS / URL ใน n8n');
-        } else {
-          showSnackbar('โหลดไม่สำเร็จ: ' + err.message);
+        if (inCodeBlock) {
+          codeBlockContent.push(line);
+          continue;
         }
-        renderCalendar([]);
+
+        // Headers
+        if (trimmed.startsWith('### ')) {
+          closeList();
+          result.push('<h3>' + trimmed.substring(4) + '</h3>');
+          continue;
+        }
+        if (trimmed.startsWith('## ')) {
+          closeList();
+          result.push('<h2>' + trimmed.substring(3) + '</h2>');
+          continue;
+        }
+        if (trimmed.startsWith('# ')) {
+          closeList();
+          result.push('<h1>' + trimmed.substring(2) + '</h1>');
+          continue;
+        }
+
+        // Horizontal rule
+        if (trimmed === '---' || trimmed === '***') {
+          closeList();
+          result.push('<hr />');
+          continue;
+        }
+
+        // Blockquotes
+        if (trimmed.startsWith('> ')) {
+          closeList();
+          result.push('<blockquote>' + trimmed.substring(2) + '</blockquote>');
+          continue;
+        }
+
+        // Unordered lists
+        if (trimmed.match(/^[-*+] /)) {
+          if (listType !== 'ul') {
+            closeList();
+            listType = 'ul';
+            inList = true;
+          }
+          listItems.push('<li>' + trimmed.substring(2) + '</li>');
+          continue;
+        }
+
+        // Ordered lists
+        if (trimmed.match(/^\d+\. /)) {
+          if (listType !== 'ol') {
+            closeList();
+            listType = 'ol';
+            inList = true;
+          }
+          listItems.push('<li>' + trimmed.replace(/^\d+\. /, '') + '</li>');
+          continue;
+        }
+
+        // Close list if we hit a non-list item
+        if (inList) {
+          closeList();
+        }
+
+        // Empty line
+        if (!trimmed) {
+          result.push('');
+          continue;
+        }
+
+        // Regular paragraph
+        result.push('<p>' + processInlineMarkdown(trimmed) + '</p>');
+      }
+
+      closeList();
+
+      function closeList() {
+        if (inList && listItems.length > 0) {
+          const tag = listType === 'ul' ? 'ul' : 'ol';
+          result.push('<' + tag + '>' + listItems.join('') + '</' + tag + '>');
+          listItems = [];
+          inList = false;
+          listType = null;
+        }
+      }
+
+      return result.join('\n');
+    }
+
+    function processInlineMarkdown(text) {
+      let html = text;
+
+      // Bold
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+
+      // Italic (avoid conflicts with bold)
+      html = html.replace(/(?<!\*)\*(?!\*)([^*]+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+      html = html.replace(/(?<!_)_(?!_)([^_]+?)(?<!_)_(?!_)/g, '<em>$1</em>');
+
+      // Inline code
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+      // Links
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+      // Images
+      html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
+
+      return html;
+    }
+
+    // Convert text to markdown (preserve user's markdown, auto-detect simple patterns)
+    function textToMarkdown(text) {
+      if (!text.trim()) return '';
+
+      const lines = text.split('\n');
+      const result = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        const trimmed = line.trim();
+
+        // Skip empty lines
+        if (!trimmed) {
+          result.push('');
+          continue;
+        }
+
+        // If already has markdown syntax, keep it
+        if (trimmed.startsWith('#') || 
+            trimmed.startsWith('-') || 
+            trimmed.startsWith('*') || 
+            trimmed.match(/^\d+\./) ||
+            trimmed.startsWith('>') ||
+            trimmed.startsWith('```') ||
+            trimmed === '---' ||
+            trimmed === '***') {
+          result.push(line);
+          continue;
+        }
+
+        // Auto-detect short lines as headers (Notion-like)
+        if (trimmed.length < 60 && 
+            !trimmed.includes('**') && 
+            !trimmed.includes('*') && 
+            !trimmed.includes('`') &&
+            !trimmed.includes('[') &&
+            i === 0 || (i > 0 && lines[i-1].trim() === '')) {
+          if (trimmed.length < 25) {
+            result.push('# ' + trimmed);
+            continue;
+          } else if (trimmed.length < 45) {
+            result.push('## ' + trimmed);
+            continue;
+          }
+        }
+
+        // Regular text
+        result.push(line);
+      }
+
+      return result.join('\n');
+    }
+
+    function updatePreview() {
+      const text = editor.value;
+      
+      if (!text.trim()) {
+        preview.innerHTML = '<div class="empty-state">พิมพ์ข้อความเพื่อดูตัวอย่าง...</div>';
+        markdownOutput.textContent = 'Markdown จะแสดงที่นี่...';
+        return;
+      }
+
+      // Generate markdown
+      const markdown = textToMarkdown(text);
+      
+      // Parse and display preview
+      const html = parseMarkdown(markdown);
+      preview.innerHTML = html || '<div class="empty-state">ไม่พบข้อความ...</div>';
+      
+      // Show markdown output
+      markdownOutput.textContent = markdown;
+    }
+
+    function clearEditor() {
+      if (confirm('ต้องการล้างข้อความทั้งหมดหรือไม่?')) {
+        editor.value = '';
+        updatePreview();
+        editor.focus();
       }
     }
 
-    loadAndRender();
+    function copyMarkdown() {
+      const text = editor.value;
+      if (!text.trim()) {
+        alert('ไม่มีข้อความให้คัดลอก');
+        return;
+      }
+
+      const markdown = textToMarkdown(text);
+      navigator.clipboard.writeText(markdown).then(() => {
+        alert('คัดลอก Markdown เรียบร้อยแล้ว!');
+      }).catch(() => {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = markdown;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('คัดลอก Markdown เรียบร้อยแล้ว!');
+      });
+    }
+
+    function downloadMarkdown() {
+      const text = editor.value;
+      if (!text.trim()) {
+        alert('ไม่มีข้อความให้ดาวน์โหลด');
+        return;
+      }
+
+      const markdown = textToMarkdown(text);
+      const blob = new Blob([markdown], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'document.md';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Auto-update on input
+    editor.addEventListener('input', updatePreview);
+    editor.addEventListener('keydown', (e) => {
+      // Auto-format shortcuts
+      if (e.key === 'Enter' && e.shiftKey) {
+        // Shift+Enter for line break
+        return;
+      }
+    });
+
+    // Initial update
+    updatePreview();
   </script>
 </body>
 </html>
